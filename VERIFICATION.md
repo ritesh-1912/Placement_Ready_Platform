@@ -317,6 +317,113 @@ Requirements:
 - [ ] Company Intel and Round Mapping persist in history entry
 - [ ] Reopening from History shows same Company Intel and Round Mapping
 
+---
+
+## Data Model Hardening & Validation (Verification)
+
+### Input Validation
+- **Location:** `/dashboard/analyze`
+- **JD Textarea:** Required field (cannot submit empty)
+- **Min Length Warning:** If JD < 200 characters, shows amber warning:
+  - "This JD is too short to analyze deeply. Paste full JD for better output."
+  - Still allows analysis but warns user
+- **Company & Role:** Remain optional
+
+### Standardized Schema
+All analysis entries follow consistent schema:
+- `id`, `createdAt`, `updatedAt` (timestamps)
+- `company`, `role`, `jdText` (strings, empty strings allowed)
+- `extractedSkills`: Object with `coreCS`, `languages`, `web`, `data`, `cloud`, `testing`, `other` arrays
+- `roundMapping`: Array of `{roundTitle, focusAreas[], whyItMatters}`
+- `checklist`: Array of `{roundTitle, items[]}`
+- `plan7Days`: Array of `{day, focus, tasks[]}`
+- `questions`: Array of strings
+- `baseScore`: Number (never changes after initial analysis)
+- `finalScore`: Number (updates based on skillConfidenceMap)
+- `skillConfidenceMap`: Object mapping skills to "know" | "practice"
+
+### Default Skills When None Detected
+- If skill extraction returns empty:
+  - Populates `extractedSkills.other` with: ["Communication", "Problem solving", "Basic coding", "Projects"]
+  - Plan, checklist, and questions adjust accordingly
+
+### Score Stability Rules
+- **baseScore:** Computed only during initial analysis, never changes
+- **finalScore:** Starts equal to baseScore, updates only when user toggles skills
+- **When user toggles skills:**
+  - Updates `finalScore` and `updatedAt`
+  - Persists to history entry
+  - baseScore remains unchanged
+
+### History Robustness
+- **Corrupted Entry Handling:**
+  - If localStorage has corrupted entry, it's skipped during load
+  - Shows warning: "One saved entry couldn't be loaded. Create a new analysis."
+  - Valid entries still load correctly
+  - History page continues to function
+
+### Edge Case Tests
+
+#### Test 1: Empty JD Validation
+1. Go to `/dashboard/analyze`
+2. Leave JD textarea empty
+3. Click "Analyze Job Description"
+4. **Expected:** Button disabled, cannot submit
+
+#### Test 2: Short JD Warning
+1. Go to `/dashboard/analyze`
+2. Enter JD text < 200 characters (e.g., "Looking for a developer")
+3. **Expected:** Amber warning appears: "This JD is too short to analyze deeply..."
+4. Can still analyze, but warning shown
+
+#### Test 3: No Skills Detected
+1. Go to `/dashboard/analyze`
+2. Enter JD with no technical keywords (e.g., "Looking for a team player")
+3. Click Analyze
+4. **Expected:**
+   - `extractedSkills.other` contains: ["Communication", "Problem solving", "Basic coding", "Projects"]
+   - Plan, checklist, questions still generated
+
+#### Test 4: Score Stability
+1. Analyze a JD (note the initial score)
+2. On Results page, toggle some skills to "Know"
+3. Note the updated score
+4. Refresh page
+5. **Expected:**
+   - Score matches the updated score (not initial)
+   - baseScore unchanged (check localStorage)
+   - finalScore updated
+
+#### Test 5: Corrupted Entry Handling
+1. Open browser console
+2. Run: `localStorage.setItem('placement_analysis_history', '[{"invalid": "data"}]')`
+3. Refresh History page
+4. **Expected:**
+   - Warning message appears: "One saved entry couldn't be loaded..."
+   - Page still loads (no crash)
+   - Can create new analysis
+
+#### Test 6: Schema Consistency
+1. Create multiple analyses
+2. Check localStorage: `localStorage.getItem('placement_analysis_history')`
+3. **Expected:**
+   - All entries have same schema structure
+   - All required fields present (even if empty strings)
+   - No missing fields
+
+### Verification Checklist
+
+- [ ] JD textarea is required (cannot submit empty)
+- [ ] Warning appears for JD < 200 characters
+- [ ] Company and Role remain optional
+- [ ] All analysis entries follow standardized schema
+- [ ] Default skills populate when none detected
+- [ ] baseScore never changes after initial analysis
+- [ ] finalScore updates when skills toggled
+- [ ] Corrupted entries are skipped gracefully
+- [ ] Warning shown when corrupted entries detected
+- [ ] History page works even with corrupted entries
+
 ## 🎯 Next Steps
 
 The system is ready for use! All features are implemented and working offline with localStorage persistence.

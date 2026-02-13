@@ -11,11 +11,19 @@ function Analyze() {
   const [role, setRole] = useState('')
   const [jdText, setJdText] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [validationError, setValidationError] = useState('')
 
   const handleAnalyze = () => {
+    setValidationError('')
+    
     if (!jdText.trim()) {
-      alert('Please enter job description text')
+      setValidationError('Job description is required.')
       return
+    }
+
+    if (jdText.trim().length < 200) {
+      setValidationError('This JD is too short to analyze deeply. Paste full JD for better output.')
+      // Still allow analysis but show warning
     }
 
     setIsAnalyzing(true)
@@ -79,14 +87,29 @@ function Analyze() {
             </label>
             <textarea
               value={jdText}
-              onChange={(e) => setJdText(e.target.value)}
+              onChange={(e) => {
+                setJdText(e.target.value)
+                setValidationError('')
+              }}
               placeholder="Paste the complete job description here..."
               rows={12}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
+              required
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-y ${
+                validationError && jdText.trim().length < 200
+                  ? 'border-amber-300 bg-amber-50'
+                  : 'border-gray-300'
+              }`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {jdText.length} characters
-            </p>
+            <div className="mt-1 flex items-center justify-between">
+              <p className="text-xs text-gray-500">
+                {jdText.length} characters {jdText.length < 200 && <span className="text-amber-600">(minimum 200 recommended)</span>}
+              </p>
+            </div>
+            {validationError && (
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-800">{validationError}</p>
+              </div>
+            )}
           </div>
 
           <button

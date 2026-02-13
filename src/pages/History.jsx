@@ -2,19 +2,38 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { getHistory, deleteAnalysis } from '../utils/storage'
-import { Clock, Building2, Briefcase, Trash2, TrendingUp } from 'lucide-react'
+import { Clock, Building2, Briefcase, Trash2, TrendingUp, AlertCircle } from 'lucide-react'
 
 function History() {
   const navigate = useNavigate()
   const [history, setHistory] = useState([])
+  const [corruptedWarning, setCorruptedWarning] = useState(false)
 
   useEffect(() => {
     loadHistory()
   }, [])
 
   const loadHistory = () => {
-    const entries = getHistory()
-    setHistory(entries)
+    try {
+      const entries = getHistory()
+      setHistory(entries)
+      
+      // Check if any entries were skipped (corrupted)
+      const rawHistory = localStorage.getItem('placement_analysis_history')
+      if (rawHistory) {
+        try {
+          const parsed = JSON.parse(rawHistory)
+          if (Array.isArray(parsed) && parsed.length > entries.length) {
+            setCorruptedWarning(true)
+          }
+        } catch (e) {
+          // Ignore
+        }
+      }
+    } catch (error) {
+      console.error('Error loading history:', error)
+      setHistory([])
+    }
   }
 
   const handleView = (id) => {
@@ -71,6 +90,19 @@ function History() {
         </button>
       </div>
 
+      {corruptedWarning && (
+        <Card className="mb-4 border-amber-200 bg-amber-50">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800">
+                One saved entry couldn't be loaded. Create a new analysis.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="space-y-4">
         {history.map((entry) => (
           <Card
@@ -103,7 +135,7 @@ function History() {
                     <div className="flex items-center gap-1">
                       <TrendingUp className="w-4 h-4" />
                       <span className="font-semibold text-primary">
-                        Score: {entry.readinessScore}/100
+                        Score: {entry.finalScore ?? entry.readinessScore ?? 0}/100
                       </span>
                     </div>
                   </div>

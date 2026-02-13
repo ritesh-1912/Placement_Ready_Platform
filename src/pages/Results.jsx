@@ -8,17 +8,40 @@ import { CheckCircle2, Calendar, HelpCircle, Tag, Copy, Download, Target, Buildi
 const DEFAULT_CONFIDENCE = 'practice'
 
 function getBaseScore(analysis) {
-  const base = analysis.baseReadinessScore ?? analysis.readinessScore
+  // baseScore is never changed after initial analysis
+  const base = analysis.baseScore ?? analysis.baseReadinessScore ?? analysis.readinessScore
   return typeof base === 'number' ? base : 0
 }
 
 function getAllSkills(extractedSkills) {
   const list = []
   if (!extractedSkills) return list
-  Object.keys(extractedSkills).forEach((category) => {
-    const skills = extractedSkills[category]?.skills || []
-    skills.forEach((skill) => list.push({ skill, category }))
-  })
+
+  // Handle both old format (categories with skills arrays) and new format (flat object)
+  if (extractedSkills.coreCS || extractedSkills.languages || extractedSkills.web) {
+    // New standardized format
+    const categoryMap = {
+      coreCS: 'Core CS',
+      languages: 'Languages',
+      web: 'Web',
+      data: 'Data',
+      cloud: 'Cloud/DevOps',
+      testing: 'Testing',
+      other: 'Other'
+    }
+    Object.keys(extractedSkills).forEach((key) => {
+      const skills = Array.isArray(extractedSkills[key]) ? extractedSkills[key] : []
+      const category = categoryMap[key] || key
+      skills.forEach((skill) => list.push({ skill, category }))
+    })
+  } else {
+    // Old format (nested categories)
+    Object.keys(extractedSkills).forEach((category) => {
+      const categoryData = extractedSkills[category]
+      const skills = categoryData?.skills || (Array.isArray(categoryData) ? categoryData : [])
+      skills.forEach((skill) => list.push({ skill, category }))
+    })
+  }
   return list
 }
 
@@ -37,6 +60,12 @@ function computeLiveScore(baseScore, skillConfidenceMap, allSkills) {
 
 function formatPlanAsText(plan) {
   if (!plan) return ''
+  
+  // Handle both old format (object) and new format (array)
+  if (Array.isArray(plan)) {
+    return plan.map((p) => `${p.day}\n${(p.tasks || []).map((t) => `  • ${t}`).join('\n')}`).join('\n\n')
+  }
+  
   return Object.entries(plan)
     .map(([day, tasks]) => `${day}\n${(tasks || []).map((t) => `  • ${t}`).join('\n')}`)
     .join('\n\n')
@@ -44,6 +73,12 @@ function formatPlanAsText(plan) {
 
 function formatChecklistAsText(checklist) {
   if (!checklist) return ''
+  
+  // Handle both old format (object) and new format (array)
+  if (Array.isArray(checklist)) {
+    return checklist.map((c) => `${c.roundTitle}\n${(c.items || []).map((i) => `  ☐ ${i}`).join('\n')}`).join('\n\n')
+  }
+  
   return Object.entries(checklist)
     .map(([round, items]) => `${round}\n${(items || []).map((i) => `  ☐ ${i}`).join('\n')}`)
     .join('\n\n')
@@ -119,8 +154,18 @@ function Results() {
         const baseScore = getBaseScore(analysis)
         const allSkills = getAllSkills(analysis.extractedSkills)
         const liveScore = computeLiveScore(baseScore, next, allSkills)
-        updateAnalysis(analysis.id, { skillConfidenceMap: next, readinessScore: liveScore })
-        setAnalysis((prev) => (prev ? { ...prev, skillConfidenceMap: next, readinessScore: liveScore } : null))
+        // Update finalScore, not baseScore (baseScore never changes)
+        updateAnalysis(analysis.id, { 
+          skillConfidenceMap: next, 
+          finalScore: liveScore,
+          readinessScore: liveScore // Keep for backward compatibility
+        })
+        setAnalysis((prev) => (prev ? { 
+          ...prev, 
+          skillConfidenceMap: next, 
+          finalScore: liveScore,
+          readinessScore: liveScore 
+        } : null))
       }
     },
     [analysis, skillConfidenceMap]
@@ -129,9 +174,10 @@ function Results() {
   const allSkills = analysis ? getAllSkills(analysis.extractedSkills) : []
   const baseScore = analysis ? getBaseScore(analysis) : 0
   const liveScore = analysis ? computeLiveScore(baseScore, skillConfidenceMap, allSkills) : 0
+  // Use finalScore if available and skillConfidenceMap exists, otherwise compute from base
   const displayScore = analysis?.skillConfidenceMap && Object.keys(analysis.skillConfidenceMap).length > 0
-    ? liveScore
-    : (analysis ? computeLiveScore(baseScore, {}, allSkills) : 0)
+    ? (analysis.finalScore ?? liveScore)
+    : (analysis ? (analysis.finalScore ?? computeLiveScore(baseScore, {}, allSkills)) : 0)
 
   const weakSkills = allSkills
     .filter(({ skill }) => (skillConfidenceMap[skill] ?? DEFAULT_CONFIDENCE) === 'practice')
@@ -216,8 +262,38 @@ function Results() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.keys(analysis.extractedSkills || {}).map((category) => {
-                const skills = analysis.extractedSkills[category]?.skills || []
+              {(() => {
+                // Handle both old and new schema formats
+                const skillsByCategory = {}
+                if (analysis.extractedSkills.coreCS || analysis.extractedSkills.languages) {
+                  // New format
+                  const categoryMap = {
+                    coreCS: 'Core CS',
+                    languages: 'Languages',
+                    web: 'Web',
+                    data: 'Data',
+                    cloud: 'Cloud/DevOps',
+                    testing: 'Testing',
+                    other: 'Other'
+                  }
+                  Object.keys(analysis.extractedSkills).forEach((key) => {
+                    const skills = Array.isArray(analysis.extractedSkills[key]) ? analysis.extractedSkills[key] : []
+                    if (skills.length > 0) {
+                      skillsByCategory[categoryMap[key] || key] = skills
+                    }
+                  })
+                } else {
+                  // Old format
+                  Object.keys(analysis.extractedSkills || {}).forEach((category) => {
+                    const categoryData = analysis.extractedSkills[category]
+                    const skills = categoryData?.skills || (Array.isArray(categoryData) ? categoryData : [])
+                    if (skills.length > 0) {
+                      skillsByCategory[category] = skills
+                    }
+                  })
+                }
+                return Object.entries(skillsByCategory)
+              })().map(([category, skills]) => {
                 if (skills.length === 0) return null
                 return (
                   <div key={category}>
@@ -411,13 +487,22 @@ function Results() {
             Round-wise Preparation Checklist
           </CardTitle>
         </CardHeader>
-        <CardContent>
+          <CardContent>
           <div className="space-y-6">
-            {Object.keys(analysis.checklist || {}).map((round) => (
-              <div key={round}>
-                <h4 className="font-semibold text-lg text-gray-900 mb-3">{round}</h4>
-                <ul className="space-y-2">
-                  {(analysis.checklist[round] || []).map((item, idx) => (
+            {(() => {
+              // Handle both old (object) and new (array) formats
+              const checklistItems = Array.isArray(analysis.checklist)
+                ? analysis.checklist
+                : Object.entries(analysis.checklist || {}).map(([roundTitle, items]) => ({ roundTitle, items }))
+              return checklistItems
+            })().map((round) => {
+              const roundTitle = round.roundTitle || round
+              const items = round.items || (Array.isArray(round) ? round : [])
+              return (
+                <div key={roundTitle}>
+                  <h4 className="font-semibold text-lg text-gray-900 mb-3">{roundTitle}</h4>
+                  <ul className="space-y-2">
+                    {items.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <input
                         type="checkbox"
@@ -443,16 +528,28 @@ function Results() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Object.entries(analysis.plan || {}).map(([day, tasks]) => (
-              <div key={day} className="border-l-4 border-primary pl-4">
-                <h4 className="font-semibold text-gray-900 mb-2">{day}</h4>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
-                  {(tasks || []).map((task, idx) => (
-                    <li key={idx}>{task}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {(() => {
+              // Handle both old (object) and new (array) formats
+              const planItems = Array.isArray(analysis.plan7Days)
+                ? analysis.plan7Days
+                : Array.isArray(analysis.plan)
+                  ? analysis.plan
+                  : Object.entries(analysis.plan || {}).map(([day, tasks]) => ({ day, tasks }))
+              return planItems
+            })().map((planItem) => {
+              const day = planItem.day || Object.keys(planItem)[0]
+              const tasks = planItem.tasks || (Array.isArray(planItem) ? planItem : [])
+              return (
+                <div key={day} className="border-l-4 border-primary pl-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">{day}</h4>
+                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                    {tasks.map((task, idx) => (
+                      <li key={idx}>{task}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
@@ -467,24 +564,28 @@ function Results() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {(analysis.questions || []).map((q, idx) => (
-              <div
-                key={idx}
-                className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-semibold">
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-gray-900 font-medium">{q.question}</p>
-                    <span className="text-xs text-gray-500 mt-1 inline-block">
-                      {q.category}
+            {(analysis.questions || []).map((q, idx) => {
+              const questionText = typeof q === 'string' ? q : (q.question || '')
+              const category = typeof q === 'object' ? (q.category || 'General') : 'General'
+              return (
+                <div
+                  key={idx}
+                  className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                      {idx + 1}
                     </span>
+                    <div className="flex-1">
+                      <p className="text-gray-900 font-medium">{questionText}</p>
+                      <span className="text-xs text-gray-500 mt-1 inline-block">
+                        {category}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </CardContent>
       </Card>
