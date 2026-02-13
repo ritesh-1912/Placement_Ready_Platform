@@ -215,7 +215,7 @@ function Results() {
       <div className="text-center py-12">
         <p className="text-gray-600 mb-4">No analysis found.</p>
         <button
-          onClick={() => navigate('/analyze')}
+          onClick={() => navigate('/dashboard/analyze')}
           className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg"
         >
           Analyze a Job Description
@@ -236,7 +236,7 @@ function Results() {
           )}
         </div>
         <button
-          onClick={() => navigate('/analyze')}
+          onClick={() => navigate('/dashboard/analyze')}
           className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg"
         >
           New Analysis

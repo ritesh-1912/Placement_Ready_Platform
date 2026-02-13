@@ -39,7 +39,7 @@ function Analyze() {
       })
 
       setIsAnalyzing(false)
-      navigate(`/results?id=${savedEntry.id}`)
+      navigate(`/dashboard/results?id=${savedEntry.id}`)
     }, 500)
   }
 

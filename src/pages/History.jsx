@@ -37,7 +37,7 @@ function History() {
   }
 
   const handleView = (id) => {
-    navigate(`/results?id=${id}`)
+    navigate(`/dashboard/results?id=${id}`)
   }
 
   const handleDelete = (e, id) => {
@@ -67,7 +67,7 @@ function History() {
           <CardContent className="py-12 text-center">
             <p className="text-gray-600 mb-4">No analysis history yet.</p>
             <button
-              onClick={() => navigate('/analyze')}
+              onClick={() => navigate('/dashboard/analyze')}
               className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg"
             >
               Analyze a Job Description

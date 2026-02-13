@@ -528,6 +528,112 @@ All analysis entries follow consistent schema:
 - [ ] Checklist persists in localStorage after refresh
 - [ ] Ship page shows correct test count when locked
 
+---
+
+## Proof & Submission System (Verification)
+
+### Proof Page
+- **Location:** `/prp/proof`
+- **Features:**
+  - Step Completion Overview: 8 steps with Completed/Pending status
+  - Artifact Inputs: 3 URL fields (Lovable Project, GitHub Repo, Deployed URL)
+  - URL validation (must start with http:// or https://)
+  - External link icons for valid URLs
+  - Final Submission Export button
+  - Status summary showing requirements
+
+### Ship Status Rules
+- **Shipped** status ONLY when:
+  - All 8 steps completed
+  - All 10 test checklist items passed
+  - All 3 proof links provided (valid URLs)
+- **In Progress** status otherwise
+
+### Completion Message
+- When status becomes "Shipped":
+  - Shows: "You built a real product. Not a tutorial. Not a clone. A structured tool that solves a real problem. This is your proof of work."
+  - Green success styling
+  - Status badge shows "Shipped"
+
+### Verification Steps
+
+#### Step 1: Access Proof Page
+1. Navigate to `/prp/proof`
+2. **Expected:** Proof page loads with 8 steps (all pending) and 3 URL input fields
+
+#### Step 2: Complete Steps
+1. Click checkboxes to mark steps as completed
+2. **Expected:** Steps show "Completed" status, green background
+3. Refresh page
+4. **Expected:** Completed steps persist
+
+#### Step 3: Enter Proof Links
+1. Enter valid URLs:
+   - Lovable Project: `https://lovable.dev/project/...`
+   - GitHub Repo: `https://github.com/username/repo`
+   - Deployed URL: `https://your-app.vercel.app`
+2. **Expected:** URLs validate (no error messages)
+3. External link icons appear next to valid URLs
+4. Click "Save Links"
+5. **Expected:** Links saved, no errors
+
+#### Step 4: Test URL Validation
+1. Enter invalid URL (e.g., "not-a-url")
+2. Click outside field (blur)
+3. **Expected:** Error message: "Please enter a valid URL (must start with http:// or https://)"
+4. Enter valid URL
+5. **Expected:** Error clears, external link icon appears
+
+#### Step 5: Copy Final Submission
+1. Fill all 3 proof links
+2. Click "Copy Final Submission"
+3. **Expected:** Formatted text copied to clipboard
+4. Paste in text editor
+5. **Expected:** See formatted submission with all links and core capabilities
+
+#### Step 6: Test Ship Status Lock
+1. Ensure NOT all conditions met (e.g., only 5/10 tests passed)
+2. Navigate to `/prp/08-ship`
+3. **Expected:**
+   - Lock icon displayed
+   - "Ship Page Locked" message
+   - Requirements Status shows what's missing
+   - Status remains "In Progress"
+
+#### Step 7: Achieve Shipped Status
+1. Complete all 8 steps on `/prp/proof`
+2. Pass all 10 tests on `/prp/07-test`
+3. Provide all 3 proof links on `/prp/proof`
+4. Navigate to `/prp/08-ship`
+5. **Expected:**
+   - "Shipped" badge displayed
+   - Completion message: "You built a real product..."
+   - All requirements shown as complete
+   - No lock restrictions
+
+#### Step 8: Verify Persistence
+1. Complete steps and provide links
+2. Close browser
+3. Reopen and navigate to `/prp/proof`
+4. **Expected:** All data persists (steps completed, links saved)
+
+### Verification Checklist
+
+- [ ] Proof page loads at `/prp/proof`
+- [ ] 8 steps displayed with checkboxes
+- [ ] Steps can be marked completed/pending
+- [ ] 3 URL input fields present
+- [ ] URL validation works (rejects invalid URLs)
+- [ ] External link icons appear for valid URLs
+- [ ] Links save to localStorage
+- [ ] Copy Final Submission button works
+- [ ] Copied text has correct format
+- [ ] Ship page locked when conditions not met
+- [ ] Ship page unlocked when all conditions met
+- [ ] "Shipped" badge appears when unlocked
+- [ ] Completion message displays correctly
+- [ ] All data persists after refresh
+
 ## 🎯 Next Steps
 
 The system is ready for use! All features are implemented and working offline with localStorage persistence.
