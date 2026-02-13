@@ -1,0 +1,74 @@
+/**
+ * KodNest Premium Build System — Base Styles
+ * Import after design-tokens.css. No product features; layout and type only.
+ */
+
+@import "./design-tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--kn-background);
+  color: var(--kn-text-primary);
+  font-family: var(--kn-font-body);
+  font-size: var(--kn-size-body);
+  line-height: var(--kn-line-height-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--kn-font-heading);
+  font-weight: 600;
+  margin: 0 0 var(--kn-space-2);
+  line-height: 1.3;
+}
+
+h1 { font-size: var(--kn-heading-1); }
+h2 { font-size: var(--kn-heading-2); }
+h3 { font-size: var(--kn-heading-3); }
+
+p {
+  margin: 0 0 var(--kn-space-2);
+  max-width: var(--kn-text-max-width);
+}
+
+a {
+  color: var(--kn-accent);
+  text-decoration: none;
+  transition: opacity var(--kn-transition);
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+:focus-visible {
+  outline: 2px solid var(--kn-accent);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--kn-transition), border-color var(--kn-transition), background-color var(--kn-transition);
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+input, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  transition: border-color var(--kn-transition);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--kn-accent);
+}
