@@ -512,8 +512,9 @@ function Results() {
                     </li>
                   ))}
                 </ul>
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
