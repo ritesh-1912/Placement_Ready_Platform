@@ -424,6 +424,110 @@ All analysis entries follow consistent schema:
 - [ ] Warning shown when corrupted entries detected
 - [ ] History page works even with corrupted entries
 
+---
+
+## Test Checklist & Ship Lock (Verification)
+
+### Test Checklist Page
+- **Location:** `/prp/07-test`
+- **Features:**
+  - 10 test items with checkboxes
+  - Each item has "How to test" hint
+  - Summary showing "Tests Passed: X / 10"
+  - Warning if < 10: "Fix issues before shipping."
+  - Success message if all passed: "All tests passed! Ready to ship."
+  - Reset button to clear all checkboxes
+
+### Ship Page Lock
+- **Location:** `/prp/08-ship`
+- **Lock Logic:**
+  - If not all 10 tests passed: Shows locked state with message
+  - Displays current test count (e.g., "Tests Passed: 5 / 10")
+  - Button to navigate back to Test Checklist
+  - If all tests passed: Shows "Ready to Ship!" with success message
+
+### Test Items
+1. JD required validation works
+2. Short JD warning shows for <200 chars
+3. Skills extraction groups correctly
+4. Round mapping changes based on company + skills
+5. Score calculation is deterministic
+6. Skill toggles update score live
+7. Changes persist after refresh
+8. History saves and loads correctly
+9. Export buttons copy the correct content
+10. No console errors on core pages
+
+### Verification Steps
+
+#### Step 1: Access Test Checklist
+1. Navigate to `/prp/07-test`
+2. **Expected:** Test Checklist page loads with all 10 items unchecked
+3. Summary shows "Tests Passed: 0 / 10"
+4. Warning message: "Fix issues before shipping."
+
+#### Step 2: Check Individual Tests
+1. Click checkbox for "JD required validation works"
+2. **Expected:** Checkbox checked, summary updates to "Tests Passed: 1 / 10"
+3. Refresh page
+4. **Expected:** Checkbox remains checked (persisted in localStorage)
+
+#### Step 3: Complete All Tests
+1. Check all 10 test items
+2. **Expected:** Summary shows "Tests Passed: 10 / 10"
+3. Success message: "All tests passed! Ready to ship."
+4. Warning message disappears
+
+#### Step 4: Test Ship Page Lock (Before All Passed)
+1. Reset checklist (or ensure not all tests passed)
+2. Navigate to `/prp/08-ship`
+3. **Expected:**
+   - Lock icon displayed
+   - Message: "Ship Page Locked"
+   - Current test count shown
+   - Button to "Go to Test Checklist"
+
+#### Step 5: Test Ship Page (After All Passed)
+1. Complete all 10 tests on `/prp/07-test`
+2. Navigate to `/prp/08-ship`
+3. **Expected:**
+   - Success icon displayed
+   - Message: "Ready to Ship!"
+   - Pre-ship checklist shown
+   - No lock message
+
+#### Step 6: Test Reset Functionality
+1. Complete some tests (e.g., 5/10)
+2. Click "Reset checklist" button
+3. Confirm reset
+4. **Expected:**
+   - All checkboxes unchecked
+   - Summary resets to "Tests Passed: 0 / 10"
+   - Warning message reappears
+   - Ship page becomes locked again
+
+#### Step 7: Verify localStorage Persistence
+1. Check some tests
+2. Close browser tab
+3. Reopen and navigate to `/prp/07-test`
+4. **Expected:** Checked tests remain checked
+5. Check localStorage: `localStorage.getItem('prp_test_checklist')`
+6. **Expected:** JSON array with test states
+
+### Verification Checklist
+
+- [ ] Test Checklist page loads at `/prp/07-test`
+- [ ] All 10 test items displayed with checkboxes
+- [ ] Each test has "How to test" hint
+- [ ] Summary shows correct count (X / 10)
+- [ ] Warning appears when < 10 tests passed
+- [ ] Success message appears when all 10 passed
+- [ ] Ship page locked when not all tests passed
+- [ ] Ship page unlocked when all tests passed
+- [ ] Reset button clears all checkboxes
+- [ ] Checklist persists in localStorage after refresh
+- [ ] Ship page shows correct test count when locked
+
 ## 🎯 Next Steps
 
 The system is ready for use! All features are implemented and working offline with localStorage persistence.
