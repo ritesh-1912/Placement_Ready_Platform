@@ -184,6 +184,39 @@ Requirements:
 - [x] History page lists all entries
 - [x] Clicking history entry opens results
 
+---
+
+## Interactive Results & Export (Verification)
+
+### Live readiness score
+- Open any analysis on `/dashboard/results`.
+- In "Key skills extracted", each skill has **Know** / **Practice** (default: Practice).
+- Toggle some skills to "Know": the **Overall Readiness** circle updates immediately.
+- Formula: base score + 2 per "Know" − 2 per "Practice", clamped 0–100.
+
+### Toggles persist after refresh
+- On Results, set a few skills to "Know" and a few to "Practice".
+- Refresh the page (or go to History and open the same entry again).
+- Skill toggles and the readiness score should match what you set.
+
+### Export tools
+- **Copy 7-day plan** – copies the 7-day plan as plain text.
+- **Copy round checklist** – copies the round-wise checklist.
+- **Copy 10 questions** – copies the 10 interview questions.
+- **Download as TXT** – downloads one file with all sections (skills, checklist, plan, questions).
+- After copy, "Copied to clipboard" appears briefly.
+
+### History consistent with edits
+- On Results, change some skill toggles (and see the score change).
+- Go to **History**. The same entry should show the **updated score**.
+- Open that entry again: toggles and score should be unchanged.
+
+### Action Next box
+- At the bottom of Results, **Action Next** shows:
+  - Up to 3 weak skills (those marked "Need practice").
+  - Suggestion: "Start Day 1 plan now."
+- If all skills are "Know", it shows a short message instead.
+
 ## 🎯 Next Steps
 
 The system is ready for use! All features are implemented and working offline with localStorage persistence.
