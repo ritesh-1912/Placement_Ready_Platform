@@ -1,4 +1,6 @@
 import { extractSkills } from './skillExtraction'
+import { generateCompanyIntel } from './companyIntel'
+import { generateRoundMapping } from './roundMapping'
 
 export function generateChecklist(extractedSkills, detectedCategories) {
   const checklist = {
@@ -338,6 +340,12 @@ export function analyzeJD(company, role, jdText) {
   const plan = generate7DayPlan({ categories }, detectedCategories)
   const questions = generateQuestions({ categories }, detectedCategories)
   const readinessScore = calculateReadinessScore(company, role, jdText, detectedCategories)
+  
+  // Generate company intel and round mapping
+  const companyIntel = generateCompanyIntel(company, role, jdText)
+  const roundMapping = companyIntel
+    ? generateRoundMapping(companyIntel.sizeCategory, detectedCategories, { categories })
+    : null
 
   return {
     extractedSkills: categories,
@@ -345,6 +353,8 @@ export function analyzeJD(company, role, jdText) {
     checklist,
     plan,
     questions,
-    readinessScore
+    readinessScore,
+    companyIntel,
+    roundMapping
   }
 }

@@ -217,6 +217,106 @@ Requirements:
   - Suggestion: "Start Day 1 plan now."
 - If all skills are "Know", it shows a short message instead.
 
+---
+
+## Company Intel & Round Mapping (Verification)
+
+### Company Intel Block
+- **Location:** `/dashboard/results` (only shows if company name is provided)
+- **Components:**
+  - Company name
+  - Industry (inferred from keywords or defaults to "Technology Services")
+  - Size category (Startup/Mid-size/Enterprise) with employee range
+  - "Typical Hiring Focus" section with 5 bullet points
+  - Demo mode note at bottom
+
+### Round Mapping Timeline
+- **Location:** `/dashboard/results` (only shows if company name is provided)
+- **Features:**
+  - Vertical timeline with numbered rounds
+  - Each round shows: Round name, description, "Why this round matters" explanation
+  - Rounds adapt based on company size and detected skills
+
+### Test Scenarios
+
+#### Scenario 1: Enterprise Company (Amazon)
+1. Go to `/dashboard/analyze`
+2. Company: **Amazon**
+3. Role: **Software Engineer**
+4. JD Text: Include keywords like "DSA", "React", "AWS"
+5. Click Analyze
+
+**Expected Results:**
+- Company Intel shows:
+  - Company: Amazon
+  - Industry: E-commerce (or Technology Services)
+  - Size: Enterprise (2000+)
+  - Hiring Focus: Structured DSA, system design, code quality
+- Round Mapping shows:
+  - Round 1: Online Test (DSA + Aptitude)
+  - Round 2: Technical Interview (DSA + Core CS)
+  - Round 3: Technical + Projects
+  - Round 4: Managerial / HR
+- Each round has "Why this round matters" explanation
+
+#### Scenario 2: Startup Company (Unknown)
+1. Go to `/dashboard/analyze`
+2. Company: **TechStartup Inc**
+3. Role: **Frontend Developer**
+4. JD Text: Include keywords like "React", "Node.js", "JavaScript"
+5. Click Analyze
+
+**Expected Results:**
+- Company Intel shows:
+  - Company: TechStartup Inc
+  - Industry: Technology Services (default)
+  - Size: Startup (<200)
+  - Hiring Focus: Practical problem solving, stack depth, fast iteration
+- Round Mapping shows:
+  - Round 1: Practical Coding (Live Coding + Stack Implementation)
+  - Round 2: System Discussion (Architecture + Real-world Scenarios)
+  - Round 3: Culture Fit (Founder/Team Chat)
+- Rounds focus on practical skills over theory
+
+#### Scenario 3: Mid-size Company (Inferred)
+1. Go to `/dashboard/analyze`
+2. Company: **MidTech Solutions**
+3. Role: **Full Stack Developer**
+4. JD Text: Include keywords like "Python", "SQL", "Docker"
+5. Click Analyze
+
+**Expected Results:**
+- Company Intel shows:
+  - Size: Startup (<200) - defaults to Startup if not in enterprise list
+  - Hiring Focus: Practical problem-solving, stack depth
+- Round Mapping adapts to detected skills (Python, SQL, Docker)
+
+#### Scenario 4: No Company Name
+1. Go to `/dashboard/analyze`
+2. Company: **(leave empty)**
+3. Role: **Software Engineer**
+4. JD Text: Include technical keywords
+5. Click Analyze
+
+**Expected Results:**
+- Company Intel block: **NOT shown**
+- Round Mapping: **NOT shown**
+- Other sections (skills, checklist, plan, questions) still work
+
+### Verification Checklist
+
+- [ ] Company Intel renders when company name is provided
+- [ ] Company Intel shows correct industry (inferred or default)
+- [ ] Company Intel shows correct size category (Enterprise for known companies, Startup for unknown)
+- [ ] Hiring Focus adapts to company size (Enterprise vs Startup)
+- [ ] Round Mapping shows vertical timeline
+- [ ] Round Mapping adapts to company size (Enterprise = 4 rounds, Startup = 3 rounds)
+- [ ] Round Mapping adapts to detected skills (DSA → different rounds than Web)
+- [ ] Each round has "Why this round matters" explanation
+- [ ] Demo mode note appears at bottom of Company Intel
+- [ ] Company Intel and Round Mapping persist in history entry
+- [ ] Reopening from History shows same Company Intel and Round Mapping
+
 ## 🎯 Next Steps
 
 The system is ready for use! All features are implemented and working offline with localStorage persistence.

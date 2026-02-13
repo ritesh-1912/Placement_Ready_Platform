@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { getAnalysisById, getHistory, updateAnalysis } from '../utils/storage'
 import OverallReadiness from '../components/dashboard/OverallReadiness'
-import { CheckCircle2, Calendar, HelpCircle, Tag, Copy, Download, Target } from 'lucide-react'
+import { CheckCircle2, Calendar, HelpCircle, Tag, Copy, Download, Target, Building2, Users, Briefcase, Info } from 'lucide-react'
 
 const DEFAULT_CONFIDENCE = 'practice'
 
@@ -308,6 +308,100 @@ function Results() {
           )}
         </CardContent>
       </Card>
+
+      {/* Company Intel */}
+      {analysis.companyIntel && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="w-5 h-5" />
+              Company Intel
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {analysis.companyIntel.companyName}
+                </h3>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                  <div className="flex items-center gap-1.5">
+                    <Briefcase className="w-4 h-4" />
+                    <span>{analysis.companyIntel.industry}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-4 h-4" />
+                    <span>{analysis.companyIntel.sizeCategory} ({analysis.companyIntel.sizeRange} employees)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="font-semibold text-gray-900 mb-3">
+                  {analysis.companyIntel.hiringFocus.title}
+                </h4>
+                <ul className="space-y-2">
+                  {analysis.companyIntel.hiringFocus.points.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-gray-700">
+                      <span className="text-primary mt-1">•</span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-start gap-2 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                  <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <span>Demo Mode: Company intel generated heuristically.</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Round Mapping */}
+      {analysis.roundMapping && analysis.roundMapping.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Interview Round Mapping</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {analysis.roundMapping.map((round, idx) => (
+                <div key={idx} className="relative">
+                  {/* Timeline connector */}
+                  {idx < analysis.roundMapping.length - 1 && (
+                    <div className="absolute left-4 top-12 bottom-0 w-0.5 bg-gray-200" />
+                  )}
+                  
+                  <div className="flex gap-4">
+                    {/* Round number circle */}
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                      {idx + 1}
+                    </div>
+                    
+                    {/* Round content */}
+                    <div className="flex-1 pb-6">
+                      <h4 className="font-semibold text-lg text-gray-900 mb-1">
+                        {round.round}
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-3">{round.description}</p>
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <p className="text-sm text-gray-700">
+                          <span className="font-medium">Why this round matters:</span>{' '}
+                          {round.why}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Round-wise Checklist */}
       <Card className="mb-6">
