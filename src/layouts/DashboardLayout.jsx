@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Code, FileText, BookOpen, User } from 'lucide-react'
+import { LayoutDashboard, Code, FileText, BookOpen, User, History } from 'lucide-react'
 
 function DashboardLayout() {
   const location = useLocation()
@@ -8,7 +8,8 @@ function DashboardLayout() {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/dashboard/practice', icon: Code, label: 'Practice' },
     { path: '/dashboard/assessments', icon: FileText, label: 'Assessments' },
-    { path: '/dashboard/resources', icon: BookOpen, label: 'Resources' },
+    { path: '/dashboard/analyze', icon: BookOpen, label: 'Analyze JD' },
+    { path: '/dashboard/history', icon: History, label: 'History' },
     { path: '/dashboard/profile', icon: User, label: 'Profile' },
   ]
 

@@ -4,7 +4,9 @@ import DashboardLayout from './layouts/DashboardLayout'
 import Dashboard from './pages/Dashboard'
 import Practice from './pages/Practice'
 import Assessments from './pages/Assessments'
-import Resources from './pages/Resources'
+import Analyze from './pages/Analyze'
+import Results from './pages/Results'
+import History from './pages/History'
 import Profile from './pages/Profile'
 
 function App() {
@@ -16,7 +18,9 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="practice" element={<Practice />} />
           <Route path="assessments" element={<Assessments />} />
-          <Route path="resources" element={<Resources />} />
+          <Route path="analyze" element={<Analyze />} />
+          <Route path="results" element={<Results />} />
+          <Route path="history" element={<History />} />
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
