@@ -130,11 +130,11 @@ export function extractSkills(jdText) {
     }
   })
 
-  // If no skills detected, add default skills to "General" category
+  // If no skills detected, still show "General fresher stack" (per spec)
   if (detectedCategories.length === 0) {
     result['General'] = {
       keywords: [],
-      skills: ['Communication', 'Problem solving', 'Basic coding', 'Projects']
+      skills: ['General fresher stack']
     }
     detectedCategories.push('General')
   }

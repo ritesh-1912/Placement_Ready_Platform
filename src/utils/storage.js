@@ -13,6 +13,7 @@ export function saveAnalysis(analysisData) {
     role: analysisData.role || '',
     jdText: analysisData.jdText || '',
     extractedSkills: analysisData.extractedSkills,
+    companyIntel: analysisData.companyIntel,
     roundMapping: analysisData.roundMapping,
     checklist: analysisData.checklist,
     plan: analysisData.plan,

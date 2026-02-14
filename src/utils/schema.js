@@ -60,10 +60,32 @@ export function normalizeRoundMapping(roundMapping) {
   }
 
   return roundMapping.map((round) => ({
-    roundTitle: round.round || round.roundTitle || '',
-    focusAreas: round.description ? [round.description] : (round.focusAreas || []),
-    whyItMatters: round.why || round.whyItMatters || ''
+    roundTitle: round.roundTitle || round.round || '',
+    focusAreas: Array.isArray(round.focusAreas)
+      ? round.focusAreas
+      : (round.description ? [round.description] : []),
+    whyItMatters: round.whyItMatters || round.why || ''
   }))
+}
+
+export function normalizeCompanyIntel(companyIntel) {
+  if (!companyIntel || typeof companyIntel !== 'object') {
+    return null
+  }
+  const name = typeof companyIntel.companyName === 'string' ? companyIntel.companyName.trim() : ''
+  if (!name) return null
+  return {
+    companyName: name,
+    industry: typeof companyIntel.industry === 'string' ? companyIntel.industry : 'Technology Services',
+    sizeCategory: companyIntel.sizeCategory || 'Startup',
+    sizeRange: companyIntel.sizeRange || '<200',
+    hiringFocus: companyIntel.hiringFocus && typeof companyIntel.hiringFocus === 'object'
+      ? {
+          title: companyIntel.hiringFocus.title || 'Typical Hiring Focus',
+          points: Array.isArray(companyIntel.hiringFocus.points) ? companyIntel.hiringFocus.points : []
+        }
+      : { title: 'Typical Hiring Focus', points: [] }
+  }
 }
 
 export function normalizeChecklist(checklist) {
@@ -113,17 +135,18 @@ export function normalizeAnalysisEntry(entry) {
       role: typeof entry.role === 'string' ? entry.role : '',
       jdText: typeof entry.jdText === 'string' ? entry.jdText : '',
       extractedSkills: normalizeExtractedSkills(entry.extractedSkills),
+      companyIntel: normalizeCompanyIntel(entry.companyIntel),
       roundMapping: normalizeRoundMapping(entry.roundMapping),
       checklist: normalizeChecklist(entry.checklist),
       plan7Days: normalizePlan7Days(entry.plan),
       questions: normalizeQuestions(entry.questions),
-      baseScore: typeof entry.baseReadinessScore === 'number' 
-        ? entry.baseReadinessScore 
-        : (typeof entry.readinessScore === 'number' ? entry.readinessScore : 0),
+      baseScore: typeof entry.baseScore === 'number'
+        ? entry.baseScore
+        : (typeof entry.baseReadinessScore === 'number' ? entry.baseReadinessScore : (typeof entry.readinessScore === 'number' ? entry.readinessScore : 0)),
       skillConfidenceMap: entry.skillConfidenceMap && typeof entry.skillConfidenceMap === 'object'
         ? entry.skillConfidenceMap
         : {},
-      finalScore: typeof entry.readinessScore === 'number' ? entry.readinessScore : 0,
+      finalScore: typeof entry.finalScore === 'number' ? entry.finalScore : (typeof entry.readinessScore === 'number' ? entry.readinessScore : 0),
       updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString()
     }
 

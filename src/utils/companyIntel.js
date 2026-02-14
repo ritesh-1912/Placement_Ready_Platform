@@ -9,6 +9,11 @@ const ENTERPRISE_COMPANIES = [
   'cisco', 'intel', 'nvidia', 'qualcomm', 'dell', 'hp'
 ]
 
+const MIDSIZE_COMPANIES = [
+  'zomato', 'swiggy', 'razorpay', 'freshworks', 'chargebee',
+  'postman', 'thoughtworks', 'lenskart', 'policybazaar', 'sharechat'
+]
+
 const INDUSTRY_KEYWORDS = {
   'Financial Services': ['bank', 'finance', 'financial', 'investment', 'trading', 'wealth', 'credit', 'loan'],
   'E-commerce': ['ecommerce', 'e-commerce', 'retail', 'shopping', 'marketplace', 'amazon', 'flipkart'],
@@ -30,6 +35,13 @@ export function getCompanySize(companyName) {
   for (const enterprise of ENTERPRISE_COMPANIES) {
     if (lowerName.includes(enterprise) || enterprise.includes(lowerName)) {
       return { category: 'Enterprise', size: '2000+' }
+    }
+  }
+
+  // Check against known mid-size list (200–2000)
+  for (const mid of MIDSIZE_COMPANIES) {
+    if (lowerName.includes(mid) || mid.includes(lowerName)) {
+      return { category: 'Mid-size', size: '200–2000' }
     }
   }
 

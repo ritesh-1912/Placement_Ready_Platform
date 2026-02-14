@@ -23,7 +23,7 @@ function Analyze() {
 
     if (jdText.trim().length < 200) {
       setValidationError('This JD is too short to analyze deeply. Paste full JD for better output.')
-      // Still allow analysis but show warning
+      return
     }
 
     setIsAnalyzing(true)
@@ -114,7 +114,7 @@ function Analyze() {
 
           <button
             onClick={handleAnalyze}
-            disabled={isAnalyzing || !jdText.trim()}
+            disabled={isAnalyzing || !jdText.trim() || jdText.trim().length < 200}
             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isAnalyzing ? 'Analyzing...' : 'Analyze Job Description'}

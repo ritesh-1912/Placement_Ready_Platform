@@ -87,7 +87,11 @@ function formatChecklistAsText(checklist) {
 function formatQuestionsAsText(questions) {
   if (!questions) return ''
   return (questions || [])
-    .map((q, i) => `${i + 1}. ${q.question} (${q.category || 'General'})`)
+    .map((q, i) => {
+      const text = typeof q === 'string' ? q : (q?.question || '')
+      const cat = typeof q === 'object' && q?.category ? q.category : 'General'
+      return `${i + 1}. ${text} (${cat})`
+    })
     .join('\n\n')
 }
 
@@ -100,7 +104,7 @@ function fullReportAsText(analysis) {
   parts.push('--- Key Skills Extracted ---')
   if (analysis.extractedSkills) {
     Object.entries(analysis.extractedSkills).forEach(([cat, data]) => {
-      const skills = data?.skills || []
+      const skills = Array.isArray(data) ? data : (data?.skills || [])
       if (skills.length) parts.push(`${cat}: ${skills.join(', ')}`)
     })
   }
@@ -109,7 +113,7 @@ function fullReportAsText(analysis) {
   parts.push(formatChecklistAsText(analysis.checklist))
   parts.push('')
   parts.push('--- 7-Day Plan ---')
-  parts.push(formatPlanAsText(analysis.plan))
+  parts.push(formatPlanAsText(analysis.plan7Days || analysis.plan))
   parts.push('')
   parts.push('--- 10 Likely Interview Questions ---')
   parts.push(formatQuestionsAsText(analysis.questions))
@@ -174,10 +178,7 @@ function Results() {
   const allSkills = analysis ? getAllSkills(analysis.extractedSkills) : []
   const baseScore = analysis ? getBaseScore(analysis) : 0
   const liveScore = analysis ? computeLiveScore(baseScore, skillConfidenceMap, allSkills) : 0
-  // Use finalScore if available and skillConfidenceMap exists, otherwise compute from base
-  const displayScore = analysis?.skillConfidenceMap && Object.keys(analysis.skillConfidenceMap).length > 0
-    ? (analysis.finalScore ?? liveScore)
-    : (analysis ? (analysis.finalScore ?? computeLiveScore(baseScore, {}, allSkills)) : 0)
+  const displayScore = analysis ? liveScore : 0
 
   const weakSkills = allSkills
     .filter(({ skill }) => (skillConfidenceMap[skill] ?? DEFAULT_CONFIDENCE) === 'practice')
@@ -348,7 +349,7 @@ function Results() {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => handleCopy(formatPlanAsText(analysis.plan), 'plan')}
+              onClick={() => handleCopy(formatPlanAsText(analysis.plan7Days || analysis.plan), 'plan')}
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               <Copy className="w-4 h-4" />
@@ -461,13 +462,15 @@ function Results() {
                     {/* Round content */}
                     <div className="flex-1 pb-6">
                       <h4 className="font-semibold text-lg text-gray-900 mb-1">
-                        {round.round}
+                        {round.roundTitle || round.round}
                       </h4>
-                      <p className="text-sm text-gray-600 mb-3">{round.description}</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {(round.focusAreas && round.focusAreas[0]) || round.description}
+                      </p>
                       <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">Why this round matters:</span>{' '}
-                          {round.why}
+                          {round.whyItMatters || round.why}
                         </p>
                       </div>
                     </div>

@@ -52,7 +52,7 @@ function TestChecklist() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                Tests Passed: {passedCount} / {tests.length}
+                Tests Passed: {passedCount} / 10
               </h3>
               {allPassed ? (
                 <div className="flex items-center gap-2 text-green-600 mt-2">
