@@ -1,5 +1,7 @@
 # Verification Guide - Placement Readiness Platform
 
+Use this guide to verify all features. See [README.md](./README.md) for overview and [SAMPLE_JD.md](./SAMPLE_JD.md) for a sample job description.
+
 ## ✅ Implementation Confirmation
 
 ### 1. Skill Extraction ✅
@@ -324,9 +326,9 @@ Requirements:
 ### Input Validation
 - **Location:** `/dashboard/analyze`
 - **JD Textarea:** Required field (cannot submit empty)
-- **Min Length Warning:** If JD < 200 characters, shows amber warning:
-  - "This JD is too short to analyze deeply. Paste full JD for better output."
-  - Still allows analysis but warns user
+- **Min Length:** If JD < 200 characters:
+  - Shows amber warning: "This JD is too short to analyze deeply. Paste full JD for better output."
+  - Submission is blocked (Analyze button disabled until JD length ≥ 200)
 - **Company & Role:** Remain optional
 
 ### Standardized Schema
@@ -373,8 +375,8 @@ All analysis entries follow consistent schema:
 #### Test 2: Short JD Warning
 1. Go to `/dashboard/analyze`
 2. Enter JD text < 200 characters (e.g., "Looking for a developer")
-3. **Expected:** Amber warning appears: "This JD is too short to analyze deeply..."
-4. Can still analyze, but warning shown
+3. **Expected:** Amber warning appears: "This JD is too short to analyze deeply..."; Analyze button stays disabled
+4. Add text so length ≥ 200 → button enables and analysis can run
 
 #### Test 3: No Skills Detected
 1. Go to `/dashboard/analyze`
@@ -414,7 +416,7 @@ All analysis entries follow consistent schema:
 ### Verification Checklist
 
 - [ ] JD textarea is required (cannot submit empty)
-- [ ] Warning appears for JD < 200 characters
+- [ ] Warning appears for JD < 200 characters; submission blocked until length ≥ 200
 - [ ] Company and Role remain optional
 - [ ] All analysis entries follow standardized schema
 - [ ] Default skills populate when none detected
@@ -440,11 +442,9 @@ All analysis entries follow consistent schema:
 
 ### Ship Page Lock
 - **Location:** `/prp/08-ship`
-- **Lock Logic:**
-  - If not all 10 tests passed: Shows locked state with message
-  - Displays current test count (e.g., "Tests Passed: 5 / 10")
-  - Button to navigate back to Test Checklist
-  - If all tests passed: Shows "Ready to Ship!" with success message
+- **Lock Logic:** Ship unlocks only when all three are true: (1) all 10 test checklist items passed, (2) all 8 build steps completed, (3) all 3 proof links provided (valid URLs).
+  - If any condition missing: Shows "Ship Page Locked" with requirements status and buttons to Proof / Test Checklist
+  - If all conditions met: Shows "Shipped" badge and completion message
 
 ### Test Items
 1. JD required validation works
@@ -488,12 +488,11 @@ All analysis entries follow consistent schema:
    - Button to "Go to Test Checklist"
 
 #### Step 5: Test Ship Page (After All Passed)
-1. Complete all 10 tests on `/prp/07-test`
+1. Complete all 10 tests on `/prp/07-test`, all 8 steps on `/prp/proof`, and all 3 proof links
 2. Navigate to `/prp/08-ship`
 3. **Expected:**
-   - Success icon displayed
-   - Message: "Ready to Ship!"
-   - Pre-ship checklist shown
+   - "Shipped" badge displayed
+   - Completion message: "You built a real product. Not a tutorial. Not a clone. A structured tool that solves a real problem. This is your proof of work."
    - No lock message
 
 #### Step 6: Test Reset Functionality
